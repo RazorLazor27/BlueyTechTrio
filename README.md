@@ -1,5 +1,7 @@
 # BlueyTechTrio
 
+El codigo se encuentra en la carpeta "MERN"
+
 ---------
 
 ### Integrantes
