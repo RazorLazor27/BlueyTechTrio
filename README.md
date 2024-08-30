@@ -8,4 +8,4 @@ El codigo se encuentra en la carpeta "MERN"
 
 - Nicolas Berenguela  202173619-0
 - Muryel Constanzo    202173525-9
-- Laura Leiva
+- Laura Leiva         202173528-3
