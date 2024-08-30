@@ -2,6 +2,8 @@
 
 El codigo se encuentra en la carpeta "MERN"
 
+El proyecto que se decidio seguir fue el "Visualizador de imagenes DICOM" del grupo CodeConvergence
+
 ---------
 
 ### Integrantes
