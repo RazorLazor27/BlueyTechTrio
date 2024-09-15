@@ -11,3 +11,4 @@ El proyecto que se decidio seguir fue el "Visualizador de imagenes DICOM" del gr
 - Nicolas Berenguela  202173619-0
 - Muryel Constanzo    202173525-9
 - Laura Leiva         202173528-3
+- Roberto Escobar     201904561-K
