@@ -80,7 +80,7 @@ const Dicom = () => {
     };
 
     return (
-        <div style={{ display: 'flex', justifyContent: 'center', height: '100vh', alignItems: 'center' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
             <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '40px' }}>
                 {dicomData && (
                     <div style={{ marginRight: '40px', textAlign: 'justify' }}>
