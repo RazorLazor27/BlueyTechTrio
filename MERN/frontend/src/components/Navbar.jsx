@@ -16,7 +16,7 @@ const Navbar = () => {
 
     return (
         <div className='nav'>
-            <div className='nav-logo'>Bluey</div>
+            <div className='nav-logo'>BlueyTechTrio</div>
             <ul className='nav-menu'>
                 <li><Link to="/">Home</Link></li>
                 {user ? (
