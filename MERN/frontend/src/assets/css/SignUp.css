@@ -70,7 +70,7 @@ html, body {
     border-bottom-width: 2px;
     font-size: 17px;
     transition: all 0.3s ease;
-    color: #000; 
+    color: #a8bad3e1; 
 }
 
 .form-inner form .field input:focus {
