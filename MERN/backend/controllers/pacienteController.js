@@ -35,7 +35,11 @@ const crearPaciente = async(req ,res) => {
     try {
         const user_id = req.user._id
         const paciente = await Paciente.create({nombre, rut, fecha_nacimiento, sexo, telefono, doctor_rut: user_id, en_tratamiento: true})
-        res.status(200).json(paciente)
+        res.status(201).json({
+            mensaje: 'Paciente creado exitosamente',
+            paciente: paciente
+        });
+
     } catch (error) {
         res.status(400).json({error: error.message})
     }
