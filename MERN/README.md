@@ -9,7 +9,6 @@ La terminal del backend tiene que estar creado en MERN/backend:
 ## Frontend
 La terminal del frontend tiene que estar creado en la direccion MERN/frontend:
   1. Correr "npm i" durante la primera ejecución.
-  2. Ejecutar "npm i react-zoom-pan-pinch" si este aun no está instalado.
   3. Iniciar servidor con "npm run dev".
 
 
