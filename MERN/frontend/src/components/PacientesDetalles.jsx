@@ -31,13 +31,15 @@ const PacienteDetalles = ({ paciente}) => {
         navigate('/dicom', { state: {paciente}})
     }
 
+    const API_BASE_URL = '/api'
+
     const handleClick = async () => {
         if (!user){
             return console.log("No hay usuario papito")
         }
 
         
-        const response = await axios.delete('http://54.207.189.50:4000/api/pacientes/' + paciente._id,{
+        const response = await axios.delete(`${API_BASE_URL}/pacientes/`+ paciente._id,{
             headers: {
                 'Authorization': `Bearer ${user.token}`
             }

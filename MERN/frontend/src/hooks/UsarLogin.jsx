@@ -7,11 +7,13 @@ export const usarLogin = () => {
     const [isLoading, setIsLoading] = useState(null)
     const {dispatch} = UsarAuthContexto()
 
+    const API_BASE_URL = '/api'
+
     const login = async (email, password) => {
         setIsLoading(true)
         setError(null)
 
-        const response = axios.post('http://54.207.189.50:4000/api/usuarios/login',{
+        const response = axios.post(`${API_BASE_URL}/usuarios/login`,{
             email: email,
             password: password
         })

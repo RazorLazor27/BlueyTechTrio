@@ -10,10 +10,12 @@ const Pacientes = () => {
     const { pacientes, dispatch } = UsarPacienteContexto();
     const { user } = UsarAuthContexto();
 
+    const API_BASE_URL = '/api'
+
     useEffect(() => {
         const fetchPacientes = async () => {
             try {
-                const response = await axios.get('http://54.207.189.50:4000/api/pacientes/', {
+                const response = await axios.get(`${API_BASE_URL}/pacientes/`, {
                     headers: {
                         'Authorization': `Bearer ${user.token}`
                     }
