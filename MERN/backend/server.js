@@ -32,7 +32,7 @@ app.use('/api/usuarios',usuariosRoutes)
 // Conectarse a la BD 
 mongoose.connect(process.env.MONGO_URI)
     .then(() => {
-        app.listen(process.env.PORT, () => {
+        app.listen(process.env.PORT, '0.0.0.0',  () => {
             console.log("Se conecto a la base de datos y ahora Escuchando en el puerto 4000");
         })
     })
