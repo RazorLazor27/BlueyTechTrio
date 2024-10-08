@@ -12,7 +12,7 @@ export const usarSignup = () => {
         setError(null)
 
         try {
-            const response = await axios.post('http://localhost:4000/api/usuarios/signup', {
+            const response = await axios.post('http://54.207.189.50:4000/api/usuarios/signup', {
                 rut_doctor: rut,
                 nombre,
                 apellido,

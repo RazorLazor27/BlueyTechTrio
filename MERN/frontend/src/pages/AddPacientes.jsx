@@ -39,7 +39,7 @@ const PacienteForm = () => {
         console.log(JSON.stringify(paciente_uni))
 
 
-        const response = await axios.post('http://localhost:4000/api/pacientes', paciente_uni,{
+        const response = await axios.post('http://54.207.189.50:4000/api/pacientes', paciente_uni,{
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${user.token}`
