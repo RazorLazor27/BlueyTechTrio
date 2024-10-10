@@ -2,12 +2,12 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    height: 80vh;
+    height: 65vh;
     padding: 0 50px;
 }
 
 .intro {
-    width: 50%;
+    width: 70%;
     text-align: center;
     margin-bottom: 40px; 
 }
@@ -78,4 +78,42 @@
     color: white;
     border: none;
     border-radius: 5px;
+}
+
+.carousel-container {
+    width: 100%;
+    overflow: hidden; /* Esto asegura que las imágenes no se salgan del contenedor */
+    margin-top: 20px;
+    ;
+}
+
+.carousel {
+    display: flex;
+    width: 30%;
+    animation: carouselAnimation 70s infinite linear;
+}
+
+.carousel-image {
+    flex: 0 0 100%; /* Cada imagen ocupará el 100% del contenedor */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.carousel img {
+    max-width: 105%;
+    height: auto;
+}
+
+@keyframes carouselAnimation {
+    0% { transform: translateX(0); }
+    114% { transform: translateX(-100%); }
+    22% { transform: translateX(-200%); }
+    33% { transform: translateX(-300%); }
+    44% { transform: translateX(-400%); }
+    55% { transform: translateX(-500%); }
+    66% { transform: translateX(-600%); }
+    77% { transform: translateX(-700%); }
+    88% { transform: translateX(-800%); }
+    100% { transform: translateX(-900%); }
 }
