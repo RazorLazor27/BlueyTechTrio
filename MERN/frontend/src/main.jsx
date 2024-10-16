@@ -4,6 +4,7 @@ import App from './App.jsx'
 import './index.css'
 import { PacientesContextoProveedor } from './context/PacienteContexto.jsx'
 import { AuthContextoProveedor } from './context/AuthContexto.jsx'
+import 'hammerjs'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
