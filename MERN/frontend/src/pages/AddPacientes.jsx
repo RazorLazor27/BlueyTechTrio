@@ -23,7 +23,7 @@ const PacienteForm = () => {
     const handleSubmit = async (e) => {
         e.preventDefault()
 
-        const API_BASE_URL = '/api/'
+        const API_BASE_URL = '/api'
 
         
 
