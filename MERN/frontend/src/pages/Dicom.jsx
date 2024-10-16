@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import cornerstone from 'cornerstone-core';
 import cornerstoneWADOImageLoader from 'cornerstone-wado-image-loader';
 import cornerstoneMath from 'cornerstone-math';
@@ -50,7 +50,7 @@ const Dicom = () => {
         setLoadingStatus('');
     };
 
-    const loadAndViewImage = async (imageId) => {
+    const loadAndViewImage = useCallback(async (imageId) => {
         if (!imageId) {
             setLoadingStatus('No hay imagen para cargar');
             return;
@@ -74,7 +74,7 @@ const Dicom = () => {
         } catch (error) {
             setLoadingStatus(`Error al cargar la imagen: ${error.message}`);
         }
-    };
+    }, []);
 
     useEffect(() => {
         if (imageIds.length > 0 && imageRef.current) {
@@ -90,7 +90,7 @@ const Dicom = () => {
             cornerstoneTools.addStackStateManager(imageRef.current, ['stack']);
             cornerstoneTools.addToolState(imageRef.current, 'stack', stack);
         }
-    }, [imageIds]);
+    }, [imageIds, loadAndViewImage]);
 
     useEffect(() => {
         return () => {
@@ -100,39 +100,42 @@ const Dicom = () => {
         };
     }, []);
 
-    const handleSliderChange = (newValue) => {
+    const handleSliderChange = useCallback((newValue) => {
         const index = Math.min(Math.max(newValue, 0), imageIds.length - 1);
         setCurrentImageIndex(index);
         if (imageIds[index]) {
             loadAndViewImage(imageIds[index]);
         }
-    };
+    }, [imageIds, loadAndViewImage]);
 
-    const handleMouseDown = () => {
+    const handleSliderMouseDown = (event) => {
+        event.preventDefault();
         isDraggingRef.current = true;
+        document.addEventListener('mousemove', handleSliderMouseMove);
+        document.addEventListener('mouseup', handleSliderMouseUp);
     };
 
-    const handleMouseMove = (event) => {
+    const handleSliderMouseMove = useCallback((event) => {
         if (isDraggingRef.current && sliderRef.current) {
             const rect = sliderRef.current.getBoundingClientRect();
-            const x = event.clientX - rect.left;
+            const x = Math.max(0, Math.min(event.clientX - rect.left, rect.width));
             const newValue = Math.round((x / rect.width) * (imageIds.length - 1));
             handleSliderChange(newValue);
         }
-    };
+    }, [handleSliderChange, imageIds.length]);
 
-    const handleMouseUp = () => {
+    const handleSliderMouseUp = useCallback(() => {
         isDraggingRef.current = false;
-    };
+        document.removeEventListener('mousemove', handleSliderMouseMove);
+        document.removeEventListener('mouseup', handleSliderMouseUp);
+    }, [handleSliderMouseMove]);
 
     useEffect(() => {
-        document.addEventListener('mousemove', handleMouseMove);
-        document.addEventListener('mouseup', handleMouseUp);
         return () => {
-            document.removeEventListener('mousemove', handleMouseMove);
-            document.removeEventListener('mouseup', handleMouseUp);
+            document.removeEventListener('mousemove', handleSliderMouseMove);
+            document.removeEventListener('mouseup', handleSliderMouseUp);
         };
-    }, [imageIds.length]);
+    }, [handleSliderMouseMove, handleSliderMouseUp]);
 
     const handleViewChange = (event) => {
         setCurrentView(event.target.value);
@@ -152,7 +155,7 @@ const Dicom = () => {
                     <option value="coronal">Coronal</option>
                     <option value="sagital">Sagital</option>
                 </select>
-                <div style={{ marginTop: '10px' }}>
+                <div style={{ marginTop: '10px', userSelect: 'none' }}>
                     <div
                         ref={sliderRef}
                         style={{
@@ -160,20 +163,39 @@ const Dicom = () => {
                             height: '20px',
                             background: '#ddd',
                             position: 'relative',
-                            cursor: 'pointer'
+                            cursor: 'pointer',
+                            borderRadius: '10px',
+                            overflow: 'hidden'
                         }}
-                        onMouseDown={handleMouseDown}
+                        onMouseDown={handleSliderMouseDown}
                     >
                         <div
                             style={{
                                 width: `${(currentImageIndex / (imageIds.length - 1)) * 100}%`,
                                 height: '100%',
                                 background: '#4CAF50',
-                                position: 'absolute'
+                                position: 'absolute',
+                                transition: 'width 0.1s ease-out'
+                            }}
+                        />
+                        <div
+                            style={{
+                                width: '10px',
+                                height: '20px',
+                                background: '#fff',
+                                border: '2px solid #4CAF50',
+                                borderRadius: '50%',
+                                position: 'absolute',
+                                top: '50%',
+                                left: `calc(${(currentImageIndex / (imageIds.length - 1)) * 100}% - 5px)`,
+                                transform: 'translateY(-50%)',
+                                transition: 'left 0.1s ease-out'
                             }}
                         />
                     </div>
-                    <div>Imagen {currentImageIndex + 1} de {imageIds.length}</div>
+                    <div style={{ marginTop: '5px', textAlign: 'center' }}>
+                        Imagen {currentImageIndex + 1} de {imageIds.length}
+                    </div>
                 </div>
             </div>
         );
