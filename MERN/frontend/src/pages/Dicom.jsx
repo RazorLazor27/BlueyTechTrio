@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import cornerstone from 'cornerstone-core';
 import cornerstoneWADOImageLoader from 'cornerstone-wado-image-loader';
 import dicomParser from 'dicom-parser';
@@ -34,18 +34,22 @@ function formatDate(dateString) {
 const Dicom = () => {
     const location = useLocation();
     const { paciente } = location.state || {}; 
-    const [file, setFile] = useState(null);
-    const [dicomData, setDicomData] = useState(null);
-    const [showControls, setShowControls] = useState(false);  // Estado para controlar la visibilidad de los controles
+    const [files, setFiles] = useState([]);
+    const [dicomData, setDicomData] = useState([]);
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
+    const [showControls, setShowControls] = useState(false);
+    const imageRefs = useRef([]);
 
-    const onFileChange = (event) => {
-        const file = event.target.files[0];
-        const url = URL.createObjectURL(file);
-        setFile(url);
+    const onFolderChange = (event) => {
+        const selectedFiles = Array.from(event.target.files);
+        const dicomFiles = selectedFiles.filter(file => file.name.toLowerCase().endsWith('.dcm'));
+        const fileUrls = dicomFiles.map(file => URL.createObjectURL(file));
+        setFiles(fileUrls);
     };
 
-    const onFileUpload = () => {
-        cornerstone.loadImage('wadouri:' + file).then((image) => {
+    const loadDicomImage = async (url, index) => {
+        try {
+            const image = await cornerstone.loadImage('wadouri:' + url);
             const metadatos = {
                 patientName: image.data.string('x00100010'),
                 patientID: image.data.string('x00100020'),
@@ -55,18 +59,29 @@ const Dicom = () => {
                 institutionName: image.data.string('x00080080'),
                 studyInstanceUID: image.data.string('x0020000D'),
             };
-            setDicomData(metadatos);
+            setDicomData(prevData => [...prevData, metadatos]);
 
-            const element = document.getElementById('dicomImage');
-            cornerstone.enable(element);
-            cornerstone.displayImage(element, image);
-
-            // Mostrar los controles después de que la imagen se haya cargado
-            setShowControls(true);
-        }).catch(error => {
+            if (imageRefs.current[index]) {
+                cornerstone.enable(imageRefs.current[index]);
+                cornerstone.displayImage(imageRefs.current[index], image);
+            }
+        } catch (error) {
             console.error('Error al cargar la imagen DICOM: ', error);
-        });
+        }
     };
+
+    useEffect(() => {
+        if (files.length > 0) {
+            files.forEach((file, index) => loadDicomImage(file, index));
+            setShowControls(true);
+        }
+    }, [files]);
+
+    useEffect(() => {
+        if (dicomData.length > currentImageIndex && imageRefs.current[currentImageIndex]) {
+            cornerstone.resize(imageRefs.current[currentImageIndex]);
+        }
+    }, [currentImageIndex, dicomData]);
 
     const Controls = () => {
         const { zoomIn, zoomOut, resetTransform } = useControls();
@@ -75,6 +90,8 @@ const Dicom = () => {
                 <button onClick={() => zoomIn()}>Zoom In</button>
                 <button onClick={() => zoomOut()}>Zoom Out</button>
                 <button onClick={() => resetTransform()}>Reset</button>
+                <button onClick={() => setCurrentImageIndex(prev => (prev > 0 ? prev - 1 : files.length - 1))}>Anterior</button>
+                <button onClick={() => setCurrentImageIndex(prev => (prev < files.length - 1 ? prev + 1 : 0))}>Siguiente</button>
             </div>
         );
     };
@@ -82,28 +99,37 @@ const Dicom = () => {
     return (
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
             <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '40px' }}>
-                {dicomData && (
+                {dicomData.length > 0 && (
                     <div style={{ marginRight: '40px', textAlign: 'justify' }}>
                         <h2 style={{ marginBottom: '10px' }}>Metadatos DICOM</h2>
-                        <p><strong>Paciente:</strong> {dicomData.patientName} / {paciente.nombre} </p>
-                        <p><strong>ID Paciente:</strong> {dicomData.patientID} / {paciente.rut}</p>
-                        <p><strong>Fecha Nacimiento:</strong> {dicomData.patientBirthDate} / {formatDate(paciente.fecha_nacimiento)}</p>
-                        <p><strong>Sexo:</strong> {dicomData.patientSex} / {paciente.sexo} </p>
-                        <p><strong>ID del Estudio:</strong> {dicomData.studyInstanceUID} / {paciente._id}</p>
-                        <p><strong>Fecha del Estudio:</strong> {dicomData.studyDate}</p>
-                        <p><strong>Nombre Institución:</strong> {dicomData.institutionName}</p>
-                        <p><strong>Modalidad:</strong> {dicomData.modality}</p>
-                        <p><strong>Numero Imagen:</strong> {dicomData.imageNumber}</p>
+                        <p><strong>Paciente:</strong> {dicomData[currentImageIndex]?.patientName} / {paciente?.nombre} </p>
+                        <p><strong>ID Paciente:</strong> {dicomData[currentImageIndex]?.patientID} / {paciente?.rut}</p>
+                        <p><strong>Fecha Nacimiento:</strong> {dicomData[currentImageIndex]?.patientBirthDate} / {paciente?.fecha_nacimiento && formatDate(paciente.fecha_nacimiento)}</p>
+                        <p><strong>Sexo:</strong> {dicomData[currentImageIndex]?.patientSex} / {paciente?.sexo} </p>
+                        <p><strong>ID del Estudio:</strong> {dicomData[currentImageIndex]?.studyInstanceUID} / {paciente?._id}</p>
+                        <p><strong>Fecha del Estudio:</strong> {dicomData[currentImageIndex]?.studyDate}</p>
+                        <p><strong>Nombre Institución:</strong> {dicomData[currentImageIndex]?.institutionName}</p>
+                        <p><strong>Modalidad:</strong> {dicomData[currentImageIndex]?.modality}</p>
+                        <p><strong>Numero Imagen:</strong> {currentImageIndex + 1} / {files.length}</p>
                     </div>
                 )}
                 <div>
-                    <input type="file" onChange={onFileChange} />
-                    <button onClick={onFileUpload}>Enviar Imagen</button>
+                    <input type="file" onChange={onFolderChange} webkitdirectory="" directory="" multiple />
                     <TransformWrapper>
                         <TransformComponent>
-                            <div id="dicomImage" style={{ width: '512px', height: '512px' }}></div>
+                            {files.map((file, index) => (
+                                <div 
+                                    key={index} 
+                                    ref={el => imageRefs.current[index] = el}
+                                    style={{ 
+                                        width: '512px', 
+                                        height: '512px', 
+                                        display: index === currentImageIndex ? 'block' : 'none' 
+                                    }}
+                                ></div>
+                            ))}
                         </TransformComponent>
-                        {showControls && <Controls />} {/* Mostrar los controles solo si showControls es true */}
+                        {showControls && <Controls />}
                     </TransformWrapper>
                 </div>
             </div>
