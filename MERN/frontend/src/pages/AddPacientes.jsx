@@ -23,6 +23,8 @@ const PacienteForm = () => {
     const handleSubmit = async (e) => {
         e.preventDefault()
 
+        const API_BASE_URL = '/api/'
+
         
 
         if (!user) {
@@ -39,7 +41,7 @@ const PacienteForm = () => {
         console.log(JSON.stringify(paciente_uni))
 
 
-        const response = await axios.post('http://localhost:4000/api/pacientes', paciente_uni,{
+        const response = await axios.post(`${API_BASE_URL}/pacientes/`, paciente_uni,{
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${user.token}`

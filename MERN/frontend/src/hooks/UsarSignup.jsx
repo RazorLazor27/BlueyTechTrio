@@ -7,12 +7,14 @@ export const usarSignup = () => {
     const [isLoading, setIsLoading] = useState(false)
     const { dispatch } = UsarAuthContexto()
 
+    const API_BASE_URL = '/api'
+
     const signup = async (rut, nombre, apellido, sexo, email, password, specialization) => {
         setIsLoading(true)
         setError(null)
 
         try {
-            const response = await axios.post('http://localhost:4000/api/usuarios/signup', {
+            const response = await axios.post(`${API_BASE_URL}/usuarios/signup`, {
                 rut_doctor: rut,
                 nombre,
                 apellido,
