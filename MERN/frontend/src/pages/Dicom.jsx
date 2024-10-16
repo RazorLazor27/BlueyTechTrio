@@ -6,6 +6,7 @@ import cornerstoneTools from 'cornerstone-tools';
 import dicomParser from 'dicom-parser';
 import { TransformWrapper, TransformComponent, useControls } from "react-zoom-pan-pinch";
 import { useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 // Inicialización de loaders y configuración de Cornerstone
 cornerstoneTools.external.cornerstone = cornerstone;
@@ -22,13 +23,14 @@ cornerstoneWADOImageLoader.configure({
 cornerstoneTools.init();
 
 const Dicom = () => {
+    
     const location = useLocation();
     const { paciente } = location.state || {}; 
     const [imageIds, setImageIds] = useState([]);
     const [dicomData, setDicomData] = useState(null);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [showControls, setShowControls] = useState(false);
-    const [currentView, setCurrentView] = useState('axial');
+    const [currentView, setCurrentView] = useState('Sagital');
     const [loadingStatus, setLoadingStatus] = useState('');
     const imageRef = useRef(null);
     const sliderRef = useRef(null);
@@ -147,13 +149,14 @@ const Dicom = () => {
         const { zoomIn, zoomOut, resetTransform } = useControls();
         return (
             <div>
+                
                 <button onClick={() => zoomIn()}>Zoom In</button>
                 <button onClick={() => zoomOut()}>Zoom Out</button>
                 <button onClick={() => resetTransform()}>Reset</button>
                 <select value={currentView} onChange={handleViewChange}>
-                    <option value="axial">Axial</option>
-                    <option value="coronal">Coronal</option>
-                    <option value="sagital">Sagital</option>
+                    <option value="Sagital">Sagital</option>
+                    <option value="Coronal">Coronal</option>
+                    <option value="Axial">Axial</option>
                 </select>
                 <div style={{ marginTop: '10px', userSelect: 'none' }}>
                     <div
@@ -193,6 +196,7 @@ const Dicom = () => {
                             }}
                         />
                     </div>
+                    
                     <div style={{ marginTop: '5px', textAlign: 'center' }}>
                         Imagen {currentImageIndex + 1} de {imageIds.length}
                     </div>
@@ -202,11 +206,13 @@ const Dicom = () => {
     };
 
     return (
+        
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px' }}>
                 <input type="file" onChange={onFolderChange} webkitdirectory="" directory="" multiple />
                 {loadingStatus && <p>{loadingStatus}</p>}
                 <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '40px' }}>
+                    
                     {dicomData && (
                         <div style={{ marginRight: '40px', textAlign: 'justify' }}>
                             <h2 style={{ marginBottom: '10px' }}>Metadatos DICOM</h2>
@@ -217,7 +223,13 @@ const Dicom = () => {
                             <p><strong>Modalidad:</strong> {dicomData.modality}</p>
                             <p><strong>Numero Imagen:</strong> {currentImageIndex + 1} / {imageIds.length}</p>
                             <p><strong>Vista Actual:</strong> {currentView}</p>
+                            <br />
+                            <br />
+                                <Link to="/dicomFile">
+                                <button></button>
+                                </Link>
                         </div>
+                        
                     )}
                     <div>
                         <TransformWrapper>
@@ -243,14 +255,23 @@ const Dicom = () => {
                                             No hay imágenes cargadas
                                         </div>
                                     )}
+                                    
                                 </div>
                             </TransformComponent>
                             {showControls && <Controls />}
                         </TransformWrapper>
+                        
                     </div>
+                    
                 </div>
+                
+                
+                
+                
             </div>
+            
         </div>
+        
     );
 };
 

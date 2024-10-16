@@ -32,29 +32,31 @@ export default function DicomFile() {
     return (
         <div>
             {/* Selector de vista */}
-            <label htmlFor="view-select">Selecciona el tipo de vista: </label>
-            <select id="view-select" value={viewType} onChange={handleViewChange}>
-                <option value="Axial">Axial</option>
-                <option value="Coronal">Coronal</option>
-                <option value="Sagital">Sagital</option>
-            </select>
+            <div style={{ marginBottom: '10px' }}>
+                <label htmlFor="view-select" style={{ marginRight: '15px' }}>Selecciona el tipo de vista:</label>
+                <select id="view-select" value={viewType} onChange={handleViewChange}>
+                    <option value="Axial">Axial</option>
+                    <option value="Coronal">Coronal</option>
+                    <option value="Sagital">Sagital</option>
+                </select>
+            </div>
 
             {/* Renderizado condicional basado en el tipo de vista */}
-            {viewType === 'Axial' && (
+            {viewType === 'Sagital' && (
                 <div>
                     <ImagenAxial slide={slide1} />
                     <input type="range" min="0" max="119" value={slide1} onChange={handleChange1} />
                 </div>
             )}
 
-            {viewType === 'Coronal' && (
+            {viewType === 'Axial' && (
                 <div>
                     <ImagenCoronal slide={slide2} />
                     <input type="range" min="0" max="255" value={slide2} onChange={handleChange2} />
                 </div>
             )}
 
-            {viewType === 'Sagital' && (
+            {viewType === 'Coronal' && (
                 <div>
                     <ImagenSagital slide={slide3} />
                     <input type="range" min="0" max="255" value={slide3} onChange={handleChange3} />
