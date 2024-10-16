@@ -7,6 +7,7 @@ import './App.css'
 import Home from './pages/Home'
 import Navbar from './components/Navbar'
 import Dicom from './pages/Dicom'
+import DicomFile from './pages/DicomFile'
 import Pacientes from './pages/Pacientes'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
@@ -24,6 +25,7 @@ function App() {
 					<Routes>
 						<Route path="/" element={<Home />}/>
 						<Route path="/dicom" element={<Dicom/>}/>
+						<Route path="/dicomfile" element={<DicomFile/>}/>
 						<Route path="/pacientes" element={user ? <Pacientes/> : <Navigate to="/login" />}/>
 						<Route path="/login" element={!user ? <Login/> : <Navigate to="/" />}/>
 						<Route path="/signup" element={!user ? <Signup/> : <Navigate to="/" />}/>
