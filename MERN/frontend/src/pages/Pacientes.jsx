@@ -13,7 +13,7 @@ const Pacientes = () => {
     useEffect(() => {
         const fetchPacientes = async () => {
             try {
-                const response = await axios.get('http://localhost:4000/api/pacientes/', {
+                const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/pacientes`, {
                     headers: {
                         'Authorization': `Bearer ${user.token}`
                     }
@@ -23,7 +23,7 @@ const Pacientes = () => {
                 console.error("Error fetching pacientes:", error);
             }
         };
-        // debería funcionar
+
         if (user) {
             fetchPacientes();
         }

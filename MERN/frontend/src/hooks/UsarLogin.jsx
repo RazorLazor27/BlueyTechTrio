@@ -11,7 +11,7 @@ export const usarLogin = () => {
         setIsLoading(true)
         setError(null)
 
-        const response = axios.post('http://localhost:4000/api/usuarios/login',{
+        const response = axios.post(`${import.meta.env.VITE_API_BASE_URL}/usuarios/login`,{
             email: email,
             password: password
         })

@@ -12,7 +12,7 @@ export const usarSignup = () => {
         setError(null)
 
         try {
-            const response = await axios.post('http://localhost:4000/api/usuarios/signup', {
+            const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/usuarios/signup`, {
                 rut_doctor: rut,
                 nombre,
                 apellido,
