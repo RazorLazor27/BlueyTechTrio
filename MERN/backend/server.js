@@ -11,6 +11,8 @@ const pacientesRoutes = require('./routes/pacientes')
 
 const usuariosRoutes = require('./routes/usuarios')
 
+const logsRoutes = require('./routes/authlog')
+
 
 
 // Crea la app express
@@ -28,6 +30,7 @@ app.use((req, res, next) => {
 
 app.use('/api/pacientes',pacientesRoutes)
 app.use('/api/usuarios',usuariosRoutes)
+app.use('/api/logs', logsRoutes)
 
 // Conectarse a la BD 
 mongoose.connect(process.env.MONGO_URI)
