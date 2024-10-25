@@ -17,13 +17,18 @@ export const usarLogin = () => {
         })
         .then(function(response){
             // Debería ser un simil a response.ok 
-            localStorage.setItem('usuario',JSON.stringify(response.data))
+
+            const { mensaje, ...usuarioData} = response.data
+
+            localStorage.setItem('usuario',JSON.stringify(usuarioData))
 
             // Actualizar el AuthContexto
-            dispatch({type: 'LOGIN', payload: response.data})
+            dispatch({type: 'LOGIN', payload: usuarioData})
             setIsLoading(false)
 
             console.log(response)
+
+            console.log("Mensaje del servidor:", mensaje)
         })
         .catch(function (error){
 
