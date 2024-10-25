@@ -24,6 +24,7 @@ const Pacientes = () => {
             }
         };
 
+        // dale locoa 
         if (user) {
             fetchPacientes();
         }
