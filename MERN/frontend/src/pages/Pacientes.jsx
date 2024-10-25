@@ -23,7 +23,7 @@ const Pacientes = () => {
                 console.error("Error fetching pacientes:", error);
             }
         };
-
+        // debería funcionar
         if (user) {
             fetchPacientes();
         }
