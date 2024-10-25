@@ -37,7 +37,7 @@ const PacienteDetalles = ({ paciente}) => {
         }
 
         
-        const response = await axios.delete('http://localhost:4000/api/pacientes/' + paciente._id,{
+        const response = await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/pacientes/`+ paciente._id,{
             headers: {
                 'Authorization': `Bearer ${user.token}`
             }
