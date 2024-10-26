@@ -3,8 +3,8 @@ const { requireLog } = require('../middleware/requireLog')
 
 const {
     getEstadisticas,
-    getEstadisticas,
     getLog,
+    getFallas,
     crearAuthLog,
     crearFailedLog
 } = require('../controllers/authlogController')
