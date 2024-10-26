@@ -1,5 +1,19 @@
-## Reglas de Compilación
+## Documentación de compilación
 
-Para compilar el código de manera local, se necesita correr el comando "make setup" esto crea los archivos necesarios para hacer funcionar la página de manera local
+### Makefile
+**make setup**
+-> Genera los archivos .env necesarios para la compilación local
 
-Luego de correr ese código se escribe "npm run dev" para compilar la página del frontend
+**make clean**
+-> Limpia los archivos .env generados
+
+**make help** 
+-> Indica todos los comandos que se pueden realizar con el make (hay 2 que no se incluyen aqui
+
+**npm run dev**
+-> Compila la instancia local del la pagina web, correr en todos los casos de prueba local
+
+**npm run demo** 
+-> Compila la instancia para la maquina virtual que hostea la pagina web de prueba (No correr localmente) 
+
+**-> demo.blueytechtrio.site <-**
