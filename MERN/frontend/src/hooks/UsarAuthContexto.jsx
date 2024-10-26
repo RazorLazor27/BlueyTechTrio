@@ -8,7 +8,5 @@ export const UsarAuthContexto = () => {
         throw Error('UsarAuthContexto debe ser usado dentro de un Proveedor de Contexto para Autorización')
     }
 
-    
-
     return contexto
 }

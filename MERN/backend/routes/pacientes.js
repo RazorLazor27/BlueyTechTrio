@@ -1,5 +1,4 @@
 const express = require('express')
-const Paciente = require('../models/PacienteModel')
 const {
     getPaciente,
     getPacientes,
