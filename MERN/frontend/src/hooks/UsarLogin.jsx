@@ -42,6 +42,7 @@ export const usarLogin = () => {
             } catch (logError) {
                 // Si falla el registro del error, mostrar un mensaje genérico
                 setError('Error al intentar iniciar sesión. Por favor, intenta nuevamente.');
+                console.log("funciona")
             }
 
             setIsLoading(false);
