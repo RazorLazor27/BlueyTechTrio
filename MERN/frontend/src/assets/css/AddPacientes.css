@@ -20,6 +20,7 @@ form.create {
   }
   
   form.create input[type="text"],
+  form.create input[type="tel"],
   form.create input[type="date"],
   form.create select {
     width: 100%;

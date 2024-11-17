@@ -2,6 +2,52 @@ const AuthLog = require('../models/AuthLogsModel')
 const Usuario = require('../models/UsuarioModel')
 const mongoose = require('mongoose')
 
+// Estas son funciones para validar parametros de entrada 
+
+const validatePaginationParams = (page, limit) => {
+    const parsedPage = parseInt(page);
+    const parsedLimit = parseInt(limit);
+    
+    if (isNaN(parsedPage) || parsedPage < 1) {
+        throw new Error('Página inválida');
+    }
+    if (isNaN(parsedLimit) || parsedLimit < 1 || parsedLimit > 100) {
+        throw new Error('Límite de resultados inválido');
+    }
+    
+    return { parsedPage, parsedLimit };
+};
+
+const validateDateParams = (startDate, endDate) => {
+    const dateFilters = {};
+    
+    if (startDate) {
+        const parsedStartDate = new Date(startDate);
+        if (isNaN(parsedStartDate.getTime())) {
+            throw new Error('Fecha de inicio inválida');
+        }
+        dateFilters.$gte = parsedStartDate;
+    }
+    
+    if (endDate) {
+        const parsedEndDate = new Date(endDate);
+        if (isNaN(parsedEndDate.getTime())) {
+            throw new Error('Fecha de fin inválida');
+        }
+        dateFilters.$lte = parsedEndDate;
+    }
+    
+    return dateFilters;
+};
+
+const validateEstado = (estado) => {
+    const estadosValidos = ['exitoso', 'fallido'];
+    if (estado && !estadosValidos.includes(estado)) {
+        throw new Error('Estado inválido');
+    }
+    return estado;
+};
+
 // Esta funcion nos da un indicio general de los intentos de uso de nuestro sistema
 const getEstadisticas = async (req, res) => {
     try {
@@ -64,8 +110,8 @@ const getLog = async(req, res) => {
             endDate, 
             estado 
         } = req.query;
-        
-        // Verificar si el ID es válido
+
+        // Validar ID de usuario
         if (!mongoose.Types.ObjectId.isValid(id)) {
             return res.status(400).json({
                 exito: false,
@@ -73,8 +119,11 @@ const getLog = async(req, res) => {
             });
         }
 
-        // Buscar usuario por ID
-        const usuario = await Usuario.findById(id);
+        // Validar parámetros de paginación
+        const { parsedPage, parsedLimit } = validatePaginationParams(page, limit);
+
+        // Buscar usuario de forma segura
+        const usuario = await Usuario.findOne({ _id: mongoose.Types.ObjectId(id) });
         
         if (!usuario) {
             return res.status(404).json({
@@ -83,53 +132,72 @@ const getLog = async(req, res) => {
             });
         }
 
-        // Construir filtros para logs
+        // Construir filtros seguros
         const filtros = {
-            userId: id // Usar el ID directamente del parámetro
+            userId: mongoose.Types.ObjectId(id)
         };
-        
-        // Filtrar por estado si se especifica
-        if (estado) {
-            filtros.estado = estado;
+
+        // Validar y agregar filtro de estado
+        const estadoValidado = validateEstado(estado);
+        if (estadoValidado) {
+            filtros.estado = estadoValidado;
         }
-        
-        // Filtrar por rango de fechas
-        if (startDate || endDate) {
-            filtros.timestamp = {};
-            if (startDate) filtros.timestamp.$gte = new Date(startDate);
-            if (endDate) filtros.timestamp.$lte = new Date(endDate);
+
+        // Validar y agregar filtros de fecha
+        const dateFilters = validateDateParams(startDate, endDate);
+        if (Object.keys(dateFilters).length > 0) {
+            filtros.timestamp = dateFilters;
         }
 
         // Calcular skip para paginación
-        const skip = (page - 1) * limit;
+        const skip = (parsedPage - 1) * parsedLimit;
 
-        // Obtener logs con paginación
+        // Consultas seguras usando los filtros validados
         const logs = await AuthLog.find(filtros)
             .sort({ timestamp: -1 })
             .skip(skip)
-            .limit(parseInt(limit));
+            .limit(parsedLimit)
+            .lean();
 
-        // Obtener cuenta total para paginación
         const total = await AuthLog.countDocuments(filtros);
 
-        // Calcular métricas adicionales
+        // Agregación segura usando los mismos filtros validados
         const metricas = await AuthLog.aggregate([
-            { $match: filtros },
+            { 
+                $match: filtros 
+            },
             { 
                 $group: {
                     _id: null,
                     exitosos: {
-                        $sum: { $cond: [{ $eq: ["$estado", "exitoso"] }, 1, 0] }
+                        $sum: { 
+                            $cond: [
+                                { $eq: ["$estado", "exitoso"] }, 
+                                1, 
+                                0
+                            ] 
+                        }
                     },
                     fallidos: {
-                        $sum: { $cond: [{ $eq: ["$estado", "fallido"] }, 1, 0] }
+                        $sum: { 
+                            $cond: [
+                                { $eq: ["$estado", "fallido"] }, 
+                                1, 
+                                0
+                            ] 
+                        }
                     },
                     ipsUnicas: { $addToSet: "$ipAddress" },
                     ultimoIntento: { $max: "$timestamp" },
                     intentosUltimas24h: {
                         $sum: { 
                             $cond: [
-                                { $gte: ["$timestamp", new Date(Date.now() - 24 * 60 * 60 * 1000)] }, 
+                                { 
+                                    $gte: [
+                                        "$timestamp", 
+                                        new Date(Date.now() - 24 * 60 * 60 * 1000)
+                                    ] 
+                                }, 
                                 1, 
                                 0
                             ]
@@ -139,7 +207,7 @@ const getLog = async(req, res) => {
             }
         ]);
 
-        // Preparar respuesta
+        // Preparar respuesta sanitizada
         const respuesta = {
             exito: true,
             datos: {
@@ -154,9 +222,9 @@ const getLog = async(req, res) => {
                 logs,
                 paginacion: {
                     total,
-                    paginaActual: parseInt(page),
-                    totalPaginas: Math.ceil(total / limit),
-                    resultadosPorPagina: parseInt(limit)
+                    paginaActual: parsedPage,
+                    totalPaginas: Math.ceil(total / parsedLimit),
+                    resultadosPorPagina: parsedLimit
                 },
                 metricas: metricas[0] || {
                     exitosos: 0,
@@ -171,13 +239,12 @@ const getLog = async(req, res) => {
         res.json(respuesta);
 
     } catch (error) {
-        res.status(500).json({ 
+        res.status(400).json({ 
             exito: false, 
             error: error.message 
         });
     }
-}
-
+};
 // Adjuntar contraseña no hasheada..?
 // credenciales invalidas
 const crearFailedLog = async (req, res) => {
