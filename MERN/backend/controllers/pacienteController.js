@@ -1,6 +1,72 @@
 const Paciente = require('../models/PacienteModel')
 const mongoose = require('mongoose')
 
+// Estas son funciones para validar los parametros de entrada para todos los post en la BD 
+const validarRut = (rut) => {
+    if (!rut || typeof rut !== 'string') {
+        throw new Error('RUT es requerido');
+    }
+
+    // Limpiamos el RUT de puntos y espacios, pero mantenemos el guion
+    const rutLimpio = rut.replace(/\./g, '').trim();
+    
+    // Verificamos que tenga el formato correcto (con guion)
+    if (!/^\d{7,8}-[0-9kK]$/.test(rutLimpio)) {
+        throw new Error('Formato de RUT inválido. Debe incluir guion (ej: 12345678-9)');
+    }
+    
+    // Devolvemos el RUT limpio (sin puntos pero con guion)
+    return rutLimpio;
+};
+
+const validarNombre = (nombre) => {
+    if (!nombre || typeof nombre !== 'string' || nombre.length < 2 || nombre.length > 100) {
+        throw new Error('El nombre debe tener entre 2 y 100 caracteres');
+    }
+    // Eliminar caracteres especiales y múltiples espacios
+    return nombre.trim().replace(/\s+/g, ' ');
+};
+
+const validarFechaNacimiento = (fecha) => {
+    const fechaNac = new Date(fecha);
+    const hoy = new Date();
+    
+    if (isNaN(fechaNac.getTime())) {
+        throw new Error('Fecha de nacimiento inválida');
+    }
+    
+    if (fechaNac > hoy) {
+        throw new Error('La fecha de nacimiento no puede ser futura');
+    }
+    
+    const edadMinima = new Date(hoy.getFullYear() - 120, hoy.getMonth(), hoy.getDate());
+    if (fechaNac < edadMinima) {
+        throw new Error('La fecha de nacimiento es demasiado antigua');
+    }
+    
+    return fechaNac;
+};
+
+const validarSexo = (sexo) => {
+    const sexosValidos = ['masculino', 'femenino', 'otro'];
+    if (!sexo || !sexosValidos.includes(sexo.toLowerCase())) {
+        throw new Error('Sexo inválido. Debe ser: masculino, femenino u otro');
+    }
+    return sexo.toLowerCase();
+};
+
+const validarTelefono = (telefono) => {
+    // Eliminar espacios y caracteres especiales
+    const telefonoLimpio = telefono.replace(/\s+/g, '').replace(/[-()+]/g, '');
+    
+    // Verificar que solo contenga números y tenga una longitud razonable
+    if (!/^\d{8,15}$/.test(telefonoLimpio)) {
+        throw new Error('Formato de teléfono inválido');
+    }
+    
+    return telefonoLimpio;
+};
+
 
 // Obtener todos los pacientes
 const getPacientes = async (req, res) => {
@@ -28,22 +94,68 @@ const getPaciente = async (req, res) => {
 
 
 // Agregar un nuevo paciente
-const crearPaciente = async(req ,res) => {
-    const {nombre, rut, fecha_nacimiento, sexo, telefono} = req.body
-
-    // Añadir el paciente a la BD
+const crearPaciente = async(req, res) => {
     try {
-        const user_id = req.user._id
-        const paciente = await Paciente.create({nombre, rut, fecha_nacimiento, sexo, telefono, doctor_rut: user_id, en_tratamiento: true})
+        const {nombre, rut, fecha_nacimiento, sexo, telefono} = req.body;
+        
+        // Validar que existan todos los campos requeridos
+        if (!nombre || !rut || !fecha_nacimiento || !sexo || !telefono) {
+            return res.status(400).json({
+                error: 'Todos los campos son requeridos'
+            });
+        }
+
+        // Validar y sanitizar cada campo
+        const datosValidados = {
+            nombre: validarNombre(nombre),
+            rut: validarRut(rut),
+            fecha_nacimiento: validarFechaNacimiento(fecha_nacimiento),
+            sexo: validarSexo(sexo),
+            telefono: validarTelefono(telefono),
+            doctor_rut: new mongoose.Types.ObjectId(req.user._id),
+            en_tratamiento: true
+        };
+
+        // Verificar si ya existe un paciente con el mismo RUT
+        const pacienteExistente = await Paciente.findOne({ rut: datosValidados.rut });
+        if (pacienteExistente) {
+            return res.status(400).json({
+                error: 'Ya existe un paciente con este RUT'
+            });
+        }
+
+        // Crear el paciente con los datos validados
+        const paciente = await Paciente.create(datosValidados);
+        
+
         res.status(201).json({
             mensaje: 'Paciente creado exitosamente',
-            paciente: paciente
+            paciente: {
+                _id: paciente._id,
+                nombre: paciente.nombre,
+                rut: paciente.rut,
+                fecha_nacimiento: paciente.fecha_nacimiento,
+                sexo: paciente.sexo,
+                telefono: paciente.telefono,
+                en_tratamiento: paciente.en_tratamiento
+            }
         });
 
     } catch (error) {
-        res.status(400).json({error: error.message})
+        // Manejar errores específicos de validación
+        if (error.name === 'ValidationError') {
+            return res.status(400).json({
+                error: 'Error de validación',
+                detalles: Object.values(error.errors).map(err => err.message)
+            });
+        }
+
+        // Manejar otros errores
+        res.status(400).json({
+            error: error.message
+        });
     }
-}
+};
 
 
 // Borrar un paciente

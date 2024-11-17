@@ -41,7 +41,7 @@ export const usarLogin = () => {
                 setError(mensajeError);
             } catch (logError) {
                 // Si falla el registro del error, mostrar un mensaje genérico
-                setError('Error al intentar iniciar sesión. Por favor, intenta nuevamente.');
+                setError('Error al intentar iniciar sesión. Correo o contraseña inválidos.');
                 console.log("funciona")
             }
 
