@@ -1,0 +1,5 @@
+Label,# Samples,Average,Min,Max,Std. Dev.,Error %,Throughput,Received KB/sec,Sent KB/sec,Avg. Bytes
+Crear Paciente (5 usuarios * 5 loops en 10 segundos),25,128,125,133,1.72,0.000%,2.63769,1.66,1.51,642.8
+Crear Paciente (25 usuarios * 1 loops en 5 segundos),50,128,120,136,4.05,0.000%,.08292,0.05,0.05,642.9
+Crear Paciente (10 usuarios * 10 loops en 30 segundos),400,126,114,147,5.51,0.000%,.35129,0.22,0.20,642.0
+TOTAL,475,127,114,147,5.27,0.000%,.25048,0.16,0.14,642.1
