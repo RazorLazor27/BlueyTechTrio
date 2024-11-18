@@ -3,7 +3,6 @@ import { UsarAuthContexto } from './hooks/UsarAuthContexto'
 
 import './App.css'
 
-// Aqui van las paginas y los componentes
 import Home from './pages/Home'
 import Navbar from './components/Navbar'
 import Dicom from './pages/Dicom'

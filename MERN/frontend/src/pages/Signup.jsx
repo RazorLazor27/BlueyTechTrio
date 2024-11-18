@@ -6,10 +6,10 @@ const Signup = () => {
     const [rutDoctor, setRutDoctor] = useState('');
     const [nombre, setNombre] = useState('');
     const [apellido, setApellido] = useState('');
-    const [sexo, setSexo] = useState('');
+    const [sexo, setSexo] = useState('Pred'); 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [specialization, setSpecialization] = useState('');
+    const [specialization, setSpecialization] = useState('Pred'); 
 
     const { signup, error, isLoading } = usarSignup();
 
@@ -54,13 +54,16 @@ const Signup = () => {
                             />
                         </div>
                         <div className="field">
-                            <input
-                                type="text"
-                                placeholder="Sexo"
-                                onChange={(e) => setSexo(e.target.value)}
+                            <select
                                 value={sexo}
+                                onChange={(e) => setSexo(e.target.value)}
                                 required
-                            />
+                            >
+                                <option value="Pred">Seleccionar Opción</option>
+                                <option value="Masculino">Masculino</option>
+                                <option value="Femenino">Femenino</option>
+                                <option value="No decir">Prefiero No Decir</option>
+                            </select>
                         </div>
                         <div className="field">
                             <input
@@ -81,13 +84,16 @@ const Signup = () => {
                             />
                         </div>
                         <div className="field">
-                            <input
-                                type="text"
-                                placeholder="Especialización"
-                                onChange={(e) => setSpecialization(e.target.value)}
+                            <select
                                 value={specialization}
+                                onChange={(e) => setSpecialization(e.target.value)}
                                 required
-                            />
+                            >
+                                <option value="Pred">Seleccionar Opción</option>
+                                <option value="General">General</option>
+                                <option value="Cardiología">Cardiología</option>
+                                <option value="Cirugía">Cirugía</option>
+                            </select>
                         </div>
                         <div className="field btn">
                             <div className="btn-layer"></div>
