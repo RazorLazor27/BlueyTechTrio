@@ -48,12 +48,31 @@ const validarFechaNacimiento = (fecha) => {
 };
 
 const validarSexo = (sexo) => {
-    const sexosValidos = ['masculino', 'femenino', 'otro'];
-    if (!sexo || !sexosValidos.includes(sexo.toLowerCase())) {
-        throw new Error('Sexo inválido. Debe ser: masculino, femenino u otro');
+    if (!sexo || typeof sexo !== 'string') {
+        throw new Error('Sexo es requerido y debe ser una cadena de texto');
     }
-    return sexo.toLowerCase();
+    
+    // Lista blanca de valores permitidos
+    const sexosValidos = {
+        'masculino': 'masculino',
+        'femenino': 'femenino',
+        'no decir': 'no decir'
+    };
+    
+    // Sanitizar y validar contra la lista blanca
+    const sexoNormalizado = sexo.trim().toLowerCase();
+    
+    // Solo permitir valores que estén en nuestra lista blanca
+    const sexoValidado = sexosValidos[sexoNormalizado];
+    
+    if (!sexoValidado) {
+        throw new Error('Valor de sexo no válido. Debe ser: Masculino, Femenino o No decir');
+    }
+    
+    // Retornar el valor seguro de la lista blanca
+    return sexoValidado;
 };
+
 
 const validarTelefono = (telefono) => {
     // Eliminar espacios y caracteres especiales
@@ -104,28 +123,46 @@ const crearPaciente = async(req, res) => {
                 error: 'Todos los campos son requeridos'
             });
         }
-
-        // Validar y sanitizar cada campo
-        const datosValidados = {
-            nombre: validarNombre(nombre),
-            rut: validarRut(rut),
-            fecha_nacimiento: validarFechaNacimiento(fecha_nacimiento),
-            sexo: validarSexo(sexo),
-            telefono: validarTelefono(telefono),
-            doctor_rut: new mongoose.Types.ObjectId(req.user._id),
+        
+        // El schema basico de esta cosa
+        const datosPaciente = {
+            nombre: '',
+            rut: '',
+            fecha_nacimiento: null,
+            sexo: '',
+            telefono: '',
+            doctor_rut: null,
             en_tratamiento: true
         };
 
+        try {
+            datosPaciente.nombre = validarNombre(nombre);
+            datosPaciente.rut = validarRut(rut);
+            datosPaciente.fecha_nacimiento = validarFechaNacimiento(fecha_nacimiento);
+            datosPaciente.sexo = validarSexo(sexo);
+            datosPaciente.telefono = validarTelefono(telefono);
+            datosPaciente.doctor_rut = new mongoose.Types.ObjectId(req.user._id);
+        } catch (validationError) {
+            return res.status(400).json({
+                error: validationError.message
+            });
+        }
+
         // Verificar si ya existe un paciente con el mismo RUT
-        const pacienteExistente = await Paciente.findOne({ rut: datosValidados.rut });
+        const pacienteExistente = await Paciente.findOne({
+            rut: datosPaciente.rut
+        }).exec();
+        
         if (pacienteExistente) {
             return res.status(400).json({
-                error: 'Ya existe un paciente con este RUT'
+                error: 'Ya existe un paciente registrado con este RUT'
             });
         }
 
         // Crear el paciente con los datos validados
-        const paciente = await Paciente.create(datosValidados);
+        const nuevoPaciente = new Paciente(datosPaciente);
+
+        const paciente = await nuevoPaciente.save();
         
 
         res.status(201).json({

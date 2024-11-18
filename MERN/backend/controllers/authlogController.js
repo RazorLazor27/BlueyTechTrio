@@ -41,11 +41,19 @@ const validateDateParams = (startDate, endDate) => {
 };
 
 const validateEstado = (estado) => {
-    const estadosValidos = ['exitoso', 'fallido'];
-    if (estado && !estadosValidos.includes(estado)) {
-        throw new Error('Estado inválido');
+    const estadosValidos = {
+        'exitoso': 'exitoso',
+        'fallido': 'fallido'
+    };
+
+    const estadoNormalizado = estado.trim().toLowerCase();
+
+    const estadoValidado = estadosValidos[estadoNormalizado]
+
+    if (!sexoValidado) {
+        throw new Error('Estado inválido. Debe ser: exitoso o fallido');
     }
-    return estado;
+    return estadoValidado;
 };
 
 // Esta funcion nos da un indicio general de los intentos de uso de nuestro sistema
