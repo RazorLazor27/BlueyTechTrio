@@ -36,10 +36,8 @@ const DicomViews = () => {
     const sagittalRef = useRef(null);
     const coronalRef = useRef(null);
     
-    // Referencia para rastrear si el componente está montado
     const isMounted = useRef(false);
 
-    // Efecto para marcar cuando el componente está montado
     useEffect(() => {
         isMounted.current = true;
         return () => {
@@ -47,22 +45,14 @@ const DicomViews = () => {
         };
     }, []);
 
-    // Efecto para inicializar los elementos cuando están disponibles
     useEffect(() => {
         const initializeElement = async (ref, viewType) => {
             if (ref.current && isMounted.current) {
                 try {
-                    // Intentar deshabilitar primero para limpiar cualquier estado previo
                     try {
                         cornerstone.disable(ref.current);
-                    } catch (e) {
-                        // Ignorar errores de deshabilitación
-                    }
-
-                    // Habilitar el elemento
+                    } catch (e) {}
                     await cornerstone.enable(ref.current);
-                    
-                    // Solo actualizar el estado si el componente sigue montado
                     if (isMounted.current) {
                         setElementsReady(prev => ({
                             ...prev,
@@ -75,12 +65,10 @@ const DicomViews = () => {
             }
         };
 
-        // Inicializar cada elemento individualmente
         initializeElement(axialRef, 'axial');
         initializeElement(sagittalRef, 'sagittal');
         initializeElement(coronalRef, 'coronal');
 
-        // Cleanup
         return () => {
             [
                 { ref: axialRef, type: 'axial' },
@@ -96,15 +84,12 @@ const DicomViews = () => {
                                 [type]: false
                             }));
                         }
-                    } catch (error) {
-                        // Ignorar errores de limpieza
-                    }
+                    } catch (error) {}
                 }
             });
         };
-    }, []); // Solo se ejecuta una vez al montar el componente
+    }, []);
 
-    // Función para manejar la carga de archivos
     const handleFileUpload = async (event) => {
         setLoading(true);
         const files = Array.from(event.target.files);
@@ -116,7 +101,6 @@ const DicomViews = () => {
             return;
         }
 
-        // Ordenar los archivos por nombre
         dicomFiles.sort((a, b) => a.name.localeCompare(b.name));
 
         const newImageIds = dicomFiles.map(file => {
@@ -127,7 +111,6 @@ const DicomViews = () => {
         await loadVolume(newImageIds);
     };
 
-    // Función para cargar el volumen
     const loadVolume = async (ids) => {
         try {
             const images = await Promise.all(
@@ -166,7 +149,6 @@ const DicomViews = () => {
                 coronal: Math.floor(height / 2)
             });
 
-            // Asegurarse de que los elementos están habilitados
             await enableElements();
             setLoading(false);
         } catch (error) {
@@ -176,7 +158,6 @@ const DicomViews = () => {
         }
     };
 
-    // Función para generar las vistas reconstruidas
     const generateView = (type, sliceIndex) => {
         if (!volumeData) return null;
         
@@ -217,16 +198,21 @@ const DicomViews = () => {
         }
     };
 
-    // Función para crear imagen de Cornerstone
     const createCornerstoneImage = (viewData, type) => {
+        const minPixelValue = Math.min(...viewData.pixelData);
+        const maxPixelValue = Math.max(...viewData.pixelData);
+
+        const windowCenter = (minPixelValue + maxPixelValue) / 2;
+        const windowWidth = maxPixelValue - minPixelValue;
+
         return {
             imageId: `${type}_${Date.now()}`,
-            minPixelValue: 0,
-            maxPixelValue: 255,
-            slope: 1.0,
+            minPixelValue: minPixelValue,
+            maxPixelValue: maxPixelValue,
+            slope: 0.8,
             intercept: 0,
-            windowCenter: 127,
-            windowWidth: 255,
+            windowCenter: windowCenter,
+            windowWidth: windowWidth * 1,
             getPixelData: () => viewData.pixelData,
             rows: viewData.height,
             columns: viewData.width,
@@ -239,22 +225,17 @@ const DicomViews = () => {
         };
     };
 
-    // Función para actualizar las vistas
     const updateViews = async () => {
         if (!volumeData || !imageIds.length) return;
 
         const updateView = async (ref, viewType, sliceIndex) => {
-            // Verificar si el elemento está listo
             if (!ref.current || !elementsReady[viewType]) return;
 
             try {
-                // Verificar si el elemento está habilitado
                 let elementEnabled = false;
                 try {
                     elementEnabled = cornerstone.getEnabledElement(ref.current);
-                } catch (e) {
-                    // Si hay error al verificar, asumimos que no está habilitado
-                }
+                } catch (e) {}
 
                 if (!elementEnabled) {
                     await cornerstone.enable(ref.current);
@@ -274,7 +255,6 @@ const DicomViews = () => {
                 }
             } catch (error) {
                 console.error(`Error al actualizar vista ${viewType}:`, error);
-                // Intentar reinicializar el elemento si hubo un error
                 if (isMounted.current) {
                     try {
                         await cornerstone.enable(ref.current);
@@ -289,7 +269,6 @@ const DicomViews = () => {
             }
         };
 
-        // Actualizar cada vista individualmente
         for (const { ref, type, slice } of [
             { ref: axialRef, type: 'axial', slice: currentSlices.axial },
             { ref: sagittalRef, type: 'sagittal', slice: currentSlices.sagittal },
@@ -299,11 +278,9 @@ const DicomViews = () => {
         }
     };
 
-    // Efecto para actualizar las vistas cuando cambian los cortes o el volumen
     useEffect(() => {
         if (volumeData && imageIds.length > 0 && 
             Object.values(elementsReady).some(ready => ready)) {
-            // Usar requestAnimationFrame para asegurarse de que el DOM está listo
             const frameId = requestAnimationFrame(() => {
                 const timer = setTimeout(() => {
                     if (isMounted.current) {
