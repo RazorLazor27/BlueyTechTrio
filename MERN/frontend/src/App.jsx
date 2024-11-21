@@ -11,6 +11,7 @@ import Pacientes from './pages/Pacientes'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
 import PacienteForm from './pages/AddPacientes'
+import DicomViews from './components/DicomViews'
 
 
 
@@ -25,6 +26,7 @@ function App() {
 						<Route path="/" element={<Home />}/>
 						<Route path="/dicom" element={user? <Dicom/>: <Navigate to="/login" />}/>
 						<Route path="/dicomfile" element={<DicomFile/>}/>
+						<Route path="/dicom-views" element={<DicomViews />} />
 						<Route path="/pacientes" element={user ? <Pacientes/> : <Navigate to="/login" />}/>
 						<Route path="/login" element={!user ? <Login/> : <Navigate to="/" />}/>
 						<Route path="/signup" element={!user ? <Signup/> : <Navigate to="/" />}/>

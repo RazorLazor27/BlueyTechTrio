@@ -52,8 +52,13 @@ const Dicom = () => {
             setLoadingStatus('No se encontraron archivos DICOM');
             return;
         }
-
-        const newImageIds = dicomFiles.map(file => cornerstoneWADOImageLoader.wadouri.fileManager.add(file));
+    
+        // Nos aseguramos de que los IDs sean strings
+        const newImageIds = dicomFiles.map(file => {
+            const id = cornerstoneWADOImageLoader.wadouri.fileManager.add(file);
+            return id.toString();
+        });
+        
         setImageIds(newImageIds);
         setCurrentImageIndex(0);
         setLoadingStatus('');
@@ -264,9 +269,9 @@ const Dicom = () => {
                             <div className="view-info">
                                 <em>Información actualizada en tiempo real</em>
                             </div>
-                                <Link to="/dicomFile">
-                                <button></button>
-                                </Link>
+                            <Link to="/dicom-views">
+                                <button>Ver Vistas</button>
+                            </Link>
                         </div>
                     )}
 
