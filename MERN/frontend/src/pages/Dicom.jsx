@@ -39,7 +39,7 @@ const Dicom = () => {
     const [dicomData, setDicomData] = useState(null);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [showControls, setShowControls] = useState(false);
-    const [currentView, setCurrentView] = useState('Sagital');
+    const [currentView, setCurrentView] = useState('Coronal');
     const [loadingStatus, setLoadingStatus] = useState('');
     const [inverted, setInverted] = useState(false);
     const [volumeData, setVolumeData] = useState(null);
@@ -48,9 +48,9 @@ const Dicom = () => {
     const isDraggingRef = useRef(false);
 
     const [sliceIndices, setSliceIndices] = useState({
-        Axial: 0,
         Sagital: 0,
-        Coronal: 0
+        Coronal: 0,
+        Axial: 0
     });
 
     const generateView = (type, sliceIndex) => {
@@ -60,7 +60,7 @@ const Dicom = () => {
         const { width, height, depth } = dimensions;
         
         switch(type) {
-            case 'Sagital':
+            case 'Coronal':
                 const sagittalData = new Float32Array(height * depth);
                 for (let y = 0; y < height; y++) {
                     for (let z = 0; z < depth; z++) {
@@ -73,22 +73,22 @@ const Dicom = () => {
                     height: height
                 };
                 
-            case 'Coronal':
-                const coronalData = new Float32Array(width * depth);
+            case 'Axial':
+                const AxialData = new Float32Array(width * depth);
                 for (let x = 0; x < width; x++) {
                     for (let z = 0; z < depth; z++) {
-                        coronalData[z * width + x] = data[z * width * height + sliceIndex * width + x];
+                        AxialData[z * width + x] = data[z * width * height + sliceIndex * width + x];
                     }
                 }
                 return {
-                    pixelData: coronalData,
+                    pixelData: AxialData,
                     width: width,
                     height: depth
                 };
             
-            case 'Axial':
+            case 'Sagital':
             default:
-                return null; // La vista axial se maneja directamente con la imagen DICOM
+                return null; // La vista Sagital se maneja directamente con la imagen DICOM
         }
     };
 
@@ -152,10 +152,10 @@ const Dicom = () => {
             const image = await cornerstone.loadAndCacheImage(imageId);
             
             if (imageRef.current) {
-                if (currentView === 'Axial') {
+                if (currentView === 'Sagital') {
                     cornerstone.displayImage(imageRef.current, image);
                 } else {
-                    // Para vistas Sagital y Coronal
+                    // Para vistas Coronal y Axial
                     const images = await Promise.all(
                         imageIds.map(id => cornerstone.loadAndCacheImage(id))
                     );
@@ -190,7 +190,7 @@ const Dicom = () => {
 
                     // Generar la vista correspondiente
                     const sliceIndex = Math.floor(
-                        currentView === 'Sagital' 
+                        currentView === 'Coronal' 
                             ? volumeData?.dimensions.width / 2 
                             : volumeData?.dimensions.height / 2
                     );
@@ -246,8 +246,8 @@ const Dicom = () => {
         if (!volumeData) return;
 
         const index = Math.min(Math.max(newValue, 0), 
-            currentView === 'Axial' ? imageIds.length - 1 :
-            currentView === 'Sagital' ? volumeData.dimensions.width - 1 :
+            currentView === 'Sagital' ? imageIds.length - 1 :
+            currentView === 'Coronal' ? volumeData.dimensions.width - 1 :
             volumeData.dimensions.height - 1
         );
 
@@ -256,7 +256,7 @@ const Dicom = () => {
             [currentView]: index
         }));
 
-        if (currentView === 'Axial') {
+        if (currentView === 'Sagital') {
             setCurrentImageIndex(index);
             loadAndViewImage(imageIds[index]);
         } else {
@@ -268,7 +268,7 @@ const Dicom = () => {
         if (!volumeData || !imageRef.current) return;
 
         try {
-            if (viewType === 'Axial') {
+            if (viewType === 'Sagital') {
                 const image = await cornerstone.loadAndCacheImage(imageIds[sliceIndex]);
                 cornerstone.displayImage(imageRef.current, image);
             } else {
@@ -294,8 +294,8 @@ const Dicom = () => {
         if (isDraggingRef.current && sliderRef.current) {
             const rect = sliderRef.current.getBoundingClientRect();
             const x = Math.max(0, Math.min(event.clientX - rect.left, rect.width));
-            const maxSlices = currentView === 'Axial' ? imageIds.length - 1 :
-                             currentView === 'Sagital' ? volumeData?.dimensions.width - 1 :
+            const maxSlices = currentView === 'Sagital' ? imageIds.length - 1 :
+                             currentView === 'Coronal' ? volumeData?.dimensions.width - 1 :
                              volumeData?.dimensions.height - 1;
             const newValue = Math.round((x / rect.width) * maxSlices);
             handleSliderChange(newValue);
@@ -321,7 +321,7 @@ const Dicom = () => {
         
         // Usar el índice guardado para la vista seleccionada
         const sliceIndex = sliceIndices[newView];
-        if (newView === 'Axial') {
+        if (newView === 'Sagital') {
             setCurrentImageIndex(sliceIndex);
             loadAndViewImage(imageIds[sliceIndex]);
         } else {
@@ -346,11 +346,11 @@ const Dicom = () => {
         const getMaxSlices = () => {
             if (!volumeData) return 0;
             switch (currentView) {
-                case 'Axial':
-                    return imageIds.length - 1;
                 case 'Sagital':
-                    return volumeData.dimensions.width - 1;
+                    return imageIds.length - 1;
                 case 'Coronal':
+                    return volumeData.dimensions.width - 1;
+                case 'Axial':
                     return volumeData.dimensions.height - 1;
                 default:
                     return 0;
@@ -386,9 +386,9 @@ const Dicom = () => {
                     onChange={handleViewChange}
                     className="mt-4 p-2 border rounded"
                 >
-                    <option value="Axial">Vista Axial</option>
                     <option value="Sagital">Vista Sagital</option>
                     <option value="Coronal">Vista Coronal</option>
+                    <option value="Axial">Vista Axial</option>
                 </select>
 
                 <div style={{ marginTop: '10px', userSelect: 'none' }}>
