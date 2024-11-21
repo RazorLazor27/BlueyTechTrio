@@ -13,6 +13,7 @@ import ZoomOut from '../assets/icons/zoom-out.png';
 import Reset from '../assets/icons/reset.png';
 import ContrastIcon from '../assets/icons/contrast.png'; // Cambié el nombre para evitar conflictos
 import ContrastControl from './DicomConstrast';
+import InvertIcon from '../assets/icons/invert-tool.png'
 
 
 // Inicialización de loaders y configuración de Cornerstone
@@ -39,6 +40,7 @@ const Dicom = () => {
     const [showControls, setShowControls] = useState(false);
     const [currentView, setCurrentView] = useState('Sagital');
     const [loadingStatus, setLoadingStatus] = useState('');
+    const [inverted, setInverted] = useState(false);
     const imageRef = useRef(null);
     const sliderRef = useRef(null);
     const isDraggingRef = useRef(false);
@@ -156,6 +158,18 @@ const Dicom = () => {
         // Aquí podrías implementar la lógica para cambiar entre diferentes vistas
         // Por ahora, solo cambiamos el estado
     };
+
+    const toggleInvert = useCallback(() => {
+        if (!imageRef.current) return;
+        
+        const viewport = cornerstone.getViewport(imageRef.current);
+        if (viewport) {
+            viewport.invert = !inverted;
+            cornerstone.setViewport(imageRef.current, viewport);
+            setInverted(!inverted);
+        }
+    }, [inverted]);
+
     const Controls = ({ imageRef }) => {
         const { zoomIn, zoomOut, resetTransform } = useControls();
     
@@ -173,6 +187,10 @@ const Dicom = () => {
                     </button>
                     
                     <ContrastControl imageRef={imageRef} />
+
+                    <button className="zoom-button" onClick={() => toggleInvert()}>
+                        <img src={InvertIcon} alt="Invert" />
+                    </button>
                 </div>
     
                 <select value={currentView} onChange={handleViewChange}>
