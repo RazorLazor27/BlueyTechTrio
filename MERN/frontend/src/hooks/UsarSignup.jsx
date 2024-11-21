@@ -11,6 +11,20 @@ export const usarSignup = () => {
         setIsLoading(true)
         setError(null)
 
+        const table_value = {
+            "General": 1,
+            "Cardiología": 2,
+            "Administrador": 3
+        }
+
+        const spec = table_value[specialization] || null
+
+        if (spec === null) {
+            setIsLoading(false);
+            setError('La especialización proporcionada no es válida.');
+            throw new Error('La especialización proporcionada no es válida.');
+        }
+
         try {
             const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/usuarios/signup`, {
                 rut_doctor: rut,
@@ -19,7 +33,7 @@ export const usarSignup = () => {
                 sexo,
                 email,
                 password,
-                specialization
+                specialization: spec
             })
 
             localStorage.setItem('usuario', JSON.stringify(response.data))

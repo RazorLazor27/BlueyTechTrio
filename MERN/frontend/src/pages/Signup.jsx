@@ -92,7 +92,7 @@ const Signup = () => {
                                 <option value="Pred">Seleccionar Opción</option>
                                 <option value="General">General</option>
                                 <option value="Cardiología">Cardiología</option>
-                                <option value="Cirugía">Cirugía</option>
+                                <option value="Administrador"> Administrador </option>
                             </select>
                         </div>
                         <div className="field btn">

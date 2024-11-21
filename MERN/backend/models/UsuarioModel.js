@@ -33,7 +33,7 @@ const Usuario = new Schema({
         unique: true
     },
     specialization: {
-        type: String,
+        type: Number,
         required: true
     }
 }, {timestamps: true})
