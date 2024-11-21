@@ -23,7 +23,7 @@ function App() {
 				<div className="pages">
 					<Routes>
 						<Route path="/" element={<Home />}/>
-						<Route path="/dicom" element={<Dicom/>}/>
+						<Route path="/dicom" element={user? <Dicom/>: <Navigate to="/login" />}/>
 						<Route path="/dicomfile" element={<DicomFile/>}/>
 						<Route path="/pacientes" element={user ? <Pacientes/> : <Navigate to="/login" />}/>
 						<Route path="/login" element={!user ? <Login/> : <Navigate to="/" />}/>
