@@ -1,0 +1,207 @@
+/* Estilos para los metadatos DICOM */
+.dicom-metadata {
+    background-color: #ffffff; 
+    border: 1px solid #d1dbe5; 
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 300px;
+}
+
+.dicom-metadata h2 {
+    font-size: 20px;
+    color: #2a3d66; 
+    border-bottom: 2px solid #4A90E2; 
+    margin-bottom: 15px;
+    padding-bottom: 5px;
+}
+
+.dicom-metadata .info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #555; 
+}
+
+.dicom-metadata .info-row strong {
+    color: #2a3d66; 
+    width: 40%; 
+    text-align: left;
+}
+
+.dicom-metadata .info-row span {
+    width: 60%;
+    text-align: left;
+    word-wrap: break-word;
+    color: #000000; 
+}
+
+.dicom-metadata button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    background-color: #4A90E2; 
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    margin-top: 15px;
+}
+
+.dicom-metadata button:hover {
+    background-color: #357ab7; 
+}
+
+.dicom-metadata .view-info {
+    margin-top: 20px;
+    text-align: center;
+    font-size: 12px;
+    color: #000000;
+}
+
+/* Estilos para los controles de zoom */
+.zoom-controls {
+    display: flex;          
+    gap: 10px; 
+    justify-content: center; 
+    margin-top: 20px;  
+}
+
+.zoom-button {
+    width: 40px;  
+    height: 40px;
+    background-color: #AAB8C2;  
+    border: 1px solid #8A9BAF;
+    border-radius: 50%;  
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease, border 0.3s ease; 
+}
+
+.zoom-button:hover {
+    background-color: #8A9BAF; 
+    transform: scale(1.1); 
+    border-color: #4CAF50; 
+}
+
+.zoom-button img {
+    width: 18px; 
+    height: 18px;
+}
+
+.zoom-button:nth-child(3) {
+    background-color: #00aeff;  
+    border-color: #00aeff;
+}
+
+.zoom-button:nth-child(3):hover {
+    background-color: #006797;
+    border-color: #660404;
+}
+
+/* Estilos específicos para el control de contraste */
+.contrast-control-wrapper {
+    position: relative;
+    display: inline-block;
+    z-index: 1000;
+}
+
+.contrast-control-panel {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background-color: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    width: 280px;
+}
+
+.contrast-slider-group {
+    margin-bottom: 1.25rem;
+}
+
+.contrast-slider-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    font-size: 0.9rem;
+    color: #2a3d66;
+}
+
+.contrast-range-input {
+    width: 100%;
+    height: 8px;
+    margin: 0.5rem 0;
+    background: #ddd;
+    border-radius: 5px;
+    cursor: pointer;
+    appearance: none;
+    outline: none;
+}
+
+.contrast-range-input::-webkit-slider-runnable-track {
+    background: #ddd;
+    border-radius: 5px;
+    height: 8px;
+}
+
+.contrast-range-input::-webkit-slider-thumb {
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    background: #4CAF50;
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+    margin-top: -4px;
+}
+
+.contrast-range-input:focus {
+    outline: none;
+}
+
+.contrast-value-display {
+    display: block;
+    text-align: center;
+    font-size: 0.875rem;
+    color: #666;
+    margin-top: 0.25rem;
+}
+
+.contrast-reset-button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    transition: background-color 0.2s ease;
+}
+
+.contrast-reset-button:hover {
+    background-color: #45a049;
+}
+
+.contrast-range-info {
+    margin-top: 1rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid #eee;
+    font-size: 0.75rem;
+    color: #666;
+}
+
+.contrast-range-info small {
+    display: block;
+    margin-bottom: 0.25rem;
+}

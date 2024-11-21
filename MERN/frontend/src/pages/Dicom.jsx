@@ -7,6 +7,13 @@ import dicomParser from 'dicom-parser';
 import { TransformWrapper, TransformComponent, useControls } from "react-zoom-pan-pinch";
 import { useLocation } from 'react-router-dom';
 import { Link } from 'react-router-dom';
+import '../assets/css/Dicom.css';
+import ZoomIn from '../assets/icons/zoom-in.png';
+import ZoomOut from '../assets/icons/zoom-out.png';
+import Reset from '../assets/icons/reset.png';
+import ContrastIcon from '../assets/icons/contrast.png'; // Cambié el nombre para evitar conflictos
+import ContrastControl from './DicomConstrast';
+
 
 // Inicialización de loaders y configuración de Cornerstone
 cornerstoneTools.external.cornerstone = cornerstone;
@@ -144,20 +151,31 @@ const Dicom = () => {
         // Aquí podrías implementar la lógica para cambiar entre diferentes vistas
         // Por ahora, solo cambiamos el estado
     };
-
-    const Controls = () => {
+    const Controls = ({ imageRef }) => {
         const { zoomIn, zoomOut, resetTransform } = useControls();
+    
         return (
             <div>
-                
-                <button onClick={() => zoomIn()}>Zoom In</button>
-                <button onClick={() => zoomOut()}>Zoom Out</button>
-                <button onClick={() => resetTransform()}>Reset</button>
+                <div className="zoom-controls">
+                    <button className="zoom-button" onClick={() => zoomIn()}>
+                        <img src={ZoomIn} alt="Zoom In" />
+                    </button>
+                    <button className="zoom-button" onClick={() => zoomOut()}>
+                        <img src={ZoomOut} alt="Zoom Out" />
+                    </button>
+                    <button className="zoom-button" onClick={() => resetTransform()}>
+                        <img src={Reset} alt="Reset" />
+                    </button>
+                    
+                    <ContrastControl imageRef={imageRef} />
+                </div>
+    
                 <select value={currentView} onChange={handleViewChange}>
                     <option value="Sagital">Sagital</option>
                     <option value="Coronal">Coronal</option>
                     <option value="Axial">Axial</option>
                 </select>
+    
                 <div style={{ marginTop: '10px', userSelect: 'none' }}>
                     <div
                         ref={sliderRef}
@@ -196,7 +214,7 @@ const Dicom = () => {
                             }}
                         />
                     </div>
-                    
+    
                     <div style={{ marginTop: '5px', textAlign: 'center' }}>
                         Imagen {currentImageIndex + 1} de {imageIds.length}
                     </div>
@@ -204,7 +222,6 @@ const Dicom = () => {
             </div>
         );
     };
-
     return (
         
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
@@ -212,25 +229,47 @@ const Dicom = () => {
                 <input type="file" onChange={onFolderChange} webkitdirectory="" directory="" multiple />
                 {loadingStatus && <p>{loadingStatus}</p>}
                 <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '40px' }}>
-                    
                     {dicomData && (
-                        <div style={{ marginRight: '40px', textAlign: 'justify' }}>
-                            <h2 style={{ marginBottom: '10px' }}>Metadatos DICOM</h2>
-                            <p><strong>Paciente:</strong> {dicomData.patientName} / {paciente?.nombre} </p>
-                            <p><strong>ID Paciente:</strong> {dicomData.patientID} / {paciente?.rut}</p>
-                            <p><strong>Fecha del Estudio:</strong> {dicomData.studyDate}</p>
-                            <p><strong>Nombre Institución:</strong> {dicomData.institutionName}</p>
-                            <p><strong>Modalidad:</strong> {dicomData.modality}</p>
-                            <p><strong>Numero Imagen:</strong> {currentImageIndex + 1} / {imageIds.length}</p>
-                            <p><strong>Vista Actual:</strong> {currentView}</p>
-                            <br />
-                            <br />
+                        <div className="dicom-metadata">
+                            <h2>Metadatos DICOM</h2>
+                            <div className="info-row">
+                                <strong>Paciente:</strong>
+                                <span>{dicomData.patientName} / {paciente?.nombre}</span>
+                            </div>
+                            <div className="info-row">
+                                <strong>ID Paciente:</strong>
+                                <span>{dicomData.patientID} / {paciente?.rut}</span>
+                            </div>
+                            <div className="info-row">
+                                <strong>Fecha del Estudio:</strong>
+                                <span>{dicomData.studyDate}</span>
+                            </div>
+                            <div className="info-row">
+                                <strong>Nombre Institución:</strong>
+                                <span>{dicomData.institutionName}</span>
+                            </div>
+                            <div className="info-row">
+                                <strong>Modalidad:</strong>
+                                <span>{dicomData.modality}</span>
+                            </div>
+                            <div className="info-row">
+                                <strong>Número Imagen:</strong>
+                                <span>{currentImageIndex + 1} / {imageIds.length}</span>
+                            </div>
+                            <div className="info-row">
+                                <strong>Vista Actual:</strong>
+                                <span>{currentView}</span>
+                            </div>
+                            <button onClick={() => console.log('Acción personalizada')}>Ver más detalles</button>
+                            <div className="view-info">
+                                <em>Información actualizada en tiempo real</em>
+                            </div>
                                 <Link to="/dicomFile">
                                 <button></button>
                                 </Link>
                         </div>
-                        
                     )}
+
                     <div>
                         <TransformWrapper>
                             <TransformComponent>
@@ -258,15 +297,12 @@ const Dicom = () => {
                                     
                                 </div>
                             </TransformComponent>
-                            {showControls && <Controls />}
+                            {showControls && <Controls imageRef={imageRef} />}
                         </TransformWrapper>
                         
                     </div>
                     
-                </div>
-                
-                
-                
+                </div>  
                 
             </div>
             
