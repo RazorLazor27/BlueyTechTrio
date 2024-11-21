@@ -1,3 +1,4 @@
+// DicomViews.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import cornerstone from 'cornerstone-core';
 import cornerstoneWADOImageLoader from 'cornerstone-wado-image-loader';
