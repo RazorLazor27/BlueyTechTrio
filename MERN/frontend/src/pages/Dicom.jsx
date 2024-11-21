@@ -176,27 +176,27 @@ const Dicom = () => {
         return (
             <div>
                 <div className="zoom-controls">
-                    <button className="zoom-button" onClick={() => zoomIn()}>
+                    <button className="zoom-button" onClick={() => zoomIn()}  title='Hacer Zoom a la imagen'>
                         <img src={ZoomIn} alt="Zoom In" />
                     </button>
-                    <button className="zoom-button" onClick={() => zoomOut()}>
+                    <button className="zoom-button" onClick={() => zoomOut()} title='Reducir el Zoom de la imagen'>
                         <img src={ZoomOut} alt="Zoom Out" />
                     </button>
-                    <button className="zoom-button" onClick={() => resetTransform()}>
+                    <button className="zoom-button" onClick={() => resetTransform()} title='Reestablecer nivel de Zoom'>
                         <img src={Reset} alt="Reset" />
                     </button>
                     
                     <ContrastControl imageRef={imageRef} />
 
-                    <button className="zoom-button" onClick={() => toggleInvert()}>
+                    <button className="zoom-button" onClick={() => toggleInvert()} title='Invertir los colores de la Imagen'>
                         <img src={InvertIcon} alt="Invert" />
                     </button>
                 </div>
     
                 <select value={currentView} onChange={handleViewChange}>
-                    <option value="Sagital">Sagital</option>
+                    <option value="Axial">Sagital</option>
                     <option value="Coronal">Coronal</option>
-                    <option value="Axial">Axial</option>
+                    <option value="Sagital">Axial</option>
                 </select>
     
                 <div style={{ marginTop: '10px', userSelect: 'none' }}>
